@@ -4,56 +4,62 @@ import scipy as sp
 
 from utils import *
 
-### Rolling Window Features ###
-"""
-Definitely looking to add more rolling features in the future. Hopefully, ones
-that are less convoluted than the current normalized standard deviation
-"""
-def rolling_normalized_std(df, sample_size):
+### Aggregate Features ###
+def agg_feat(df, col):
     """
-    takes in the resampled convert_ms_df output
-    finds the normalized standard deviation of the peaks created
-    from rolling windows.
+    takes in a dataframe and a column. column values should be numeric.
+
+    returns the mean, and standard deviation of the column.
+
     """
+    return [np.mean(df[col]), np.std(df[col])]
 
-    df_roll = df.rolling(sample_size, on='Time').mean()
-    df_roll_mean = df_roll['pkt_size'].mean()
 
-    roll_peaks = sp.signal.find_peaks(
-    df_roll['pkt_size'], height = df_roll_mean)
-
-    peak_std = df_roll.iloc[roll_peaks[0]]['pkt_size'].std()
-    peak_mean = df_roll.iloc[roll_peaks[0]]['pkt_size'].mean()
-
-    normalized_std = peak_std / peak_mean
-
-    return normalized_std
-
-### Packet Ratio Feature ###
-def packet_ratio(df, sample_size):
+### Peak Related Aggregate Features ###
+def get_peak_loc(df, col, strict=1):
     """
-    takes in the output of convert_ms_df.
+    takes in a dataframe, column, and strictness level. threshold is determined
+    by positive standard deviations from the average. strict is default at 1.
+
+    returns an array of peak locations (index).
     """
-    src_grouped = df.groupby(
-    'pkt_src').resample(
-    sample_size, on='Time')[
-    'pkt_size'].count().reset_index()
+    threshold = df[col].mean() + (strict * df[col].std())
+    return np.array(df[col] > threshold)
 
-    upl_pkts = src_grouped[src_grouped['pkt_src'] == '1']['pkt_size'].values
-    dwl_pkts = src_grouped[src_grouped['pkt_src'] == '2']['pkt_size'].values
-
-    ratio = np.sum(upl_pkts) / np.sum(dwl_pkts)
-
-    return ratio
+def peak_time_diff(df, col):
+    """
+    mess around with the different inputs for function.
+    variance seems to inflate the difference betweent the two the most with litte
+    to no data manipulation. however, currently trying things like
+    squaring the data before taking the aggregate function to exaggerate
+    differences (moderate success??)
+    """
+    peaks = df[get_peak_loc(df, col)]
+    peaks['Time'] = peaks['Time'] - peaks['Time'].min()
+    time_diff = np.diff(peaks['Time'] ** 2)
+    return [np.mean(time_diff), np.var(time_diff), np.std(time_diff)]
 
 ### Spectral Features ###
+"""
+TODO
+- take some aggregate value of binned frequency (e.g. what should we expect
+to see in a range of frequencies for x resolution?)
+- try to determine frequency relativeness and compare from there (this is
+mostly related to relativeness within the data itself and not across
+resolutions)
+- do more with rolling windows (small windows catch the details, big windows catch
+the overall behavior)
+"""
 def spectral_features(df, col):
 
     """
-    welch implemention of spectral features
+    welch implemention of spectral features.
+
+    resample the data before inputting (might change prereq depending on
+    resource allocation).
     """
 
-    f, Pxx_den = sp.signal.welch(df[col], fs=2)
+    f, Pxx_den = sp.signal.welch(df[col], fs = 2)
     Pxx_den = np.sqrt(Pxx_den)
 
     peaks = sp.signal.find_peaks(Pxx_den)[0]
@@ -64,41 +70,29 @@ def spectral_features(df, col):
 
     return [f[loc_max], Pxx_den[loc_max], prominences[idx_max]]
 
-### Feature Creation ###
-"""
-Creates features from network-stats output
-"""
-def chunk_data(fp, interval=100, select_col=[
-    'Time',
-    '1->2Bytes',
-    '2->1Bytes',
-    '1->2Pkts',
-    '2->1Pkts',
-    'packet_times',
-    'packet_sizes',
-    'packet_dirs'
-    ]):
-
+def binned_freq(placeholder):
     """
-    takes in a filepath to the data you want to chunk and feature engineer
-    chunks our data into a specified time interval
-    each chunk is then turned into an observation to be fed into our classifier
+    dummy implementation of binned frequencies
     """
+    return
 
-    chunk_feature = []
-    chunk_col = [
-        'dwl_freq',
-        'dwl_max_psd',
-        'dwl_peak_prominence',
-        'upl_freq',
-        'upl_max_psd',
-        'upl_peak_prominence',
-        'freq_diff',
-        'rolling_normalized_std_bytes',
-        'pkt_ratio'
-    ]
+def rolling_window(placeholder):
+    """
+    dummy implementation of rolling window features
+    """
+    return
 
-    df = filter_ip(std_df(pd.read_csv(fp), 'Time'))[select_col]
+### Create Features ###
+def chunk_data(df, interval=60):
+    """
+    takes in a dataframe and an interval defined in seconds.
+
+    returns a list of dataframes of equal time.
+    """
+    df_list = []
+
+    # normalizes unix time to be seconds from start
+    df['Time'] = df['Time'] - df['Time'].min()
 
     total_chunks = np.floor(df['Time'].max() / interval).astype(int)
 
@@ -107,54 +101,64 @@ def chunk_data(fp, interval=100, select_col=[
         start = chunk * interval
         end = (chunk+1) * interval
 
-        temp_df = (df[(df['Time'] >= start) & (df['Time'] < end)])
+        temp_df = df[(df['Time'] >= start]) & (df['Time'] < end)]
 
-        preproc = convert_ms_df(temp_df)
+        df_list.append(temp_df)
 
+    return df_list
+
+def create_features(df, interval=60):
+
+    features = [
+        'dwl_peak_freq',
+        'dwl_max_psd',
+        'dwl_peak_prom',
+        'dwl_bytes_avg',
+        'dwl_bytes_std',
+        'dwl_peak_avg',
+        'dwl_peak_var',
+        'dwl_peak_std',
+        'upl_peak_freq',
+        'upl_max_psd',
+        'upl_peak_prom',
+        'upl_bytes_avg',
+        'upl_bytes_std',
+        'upl_peak_avg',
+        'upl_peak_var',
+        'upl_peak_std',
+    ]
+
+    vals = []
+
+    df_chunks = chunk_data(df, interval)
+
+    for chunk in df_chunks:
+
+        preproc = convert_ms_df(chunk, True)
         upl_bytes = preproc[preproc['pkt_src'] == '1'].resample('500ms', on='Time').sum()
         dwl_bytes = preproc[preproc['pkt_src'] == '2'].resample('500ms', on='Time').sum()
 
+        ## spectral features
         dwl_spectral = spectral_features(dwl_bytes, 'pkt_size')
         upl_spectral = spectral_features(upl_bytes, 'pkt_size')
 
-        freq_diff = dwl_spectral[0] - upl_spectral[0]
+        ## aggregate features
+        dwl_agg = agg_feat(chunk, '2->1Bytes')
+        upl_agg = agg_feat(chunk, '1->2Bytes')
 
-        rolling_feature = rolling_normalized_std(preproc, '20s')
+        ## peak features
+        dwl_peak = peak_time_diff(chunk, '2->1Bytes')
+        upl_peak = peak_time_diff(chunk, '1->2Bytes')
 
-        pkt_ratio = packet_ratio(preproc, '20s')
-
-        chunk_feature.append(np.hstack((
+        feat_val = np.hstack((
           dwl_spectral,
+          dwl_agg,
+          dwl_peak,
           upl_spectral,
-          freq_diff,
-          rolling_feature,
-          pkt_ratio
-        )))
+          upl_agg,
+          upl_peak
+        ))
 
-    return pd.DataFrame(data=chunk_feature, columns=chunk_col)
+        vals.append(feat_val)
 
-
-### Create training data ###
-def create_training_data(fp_lst, data_fp, fldr=''):
-    """
-    creates training data by reading in files and chunking them.
-    concatenates multiple data frames into one big one.
-    stream takes in [True, False] - true means data being fed is streaming and vice versa
-    """
-    video_df = pd.DataFrame()
-    novideo_df = pd.DataFrame()
-
-    providers = r"amazonprime|disneyplus|espnplus|\
-              hbomax|hulu|netflix|vimeo|youtube"
-
-    for i in organize_data(data_fp)[1]:
-        video_df = pd.concat([chunk_data(fldr + i), video_df])
-
-    video_df['stream'] = np.repeat(1, len(video_df))
-
-    for i in organize_data(data_fp)[0]:
-        novideo_df = pd.concat([chunk_data(fldr + i), novideo_df])
-
-    novideo_df['stream'] = np.repeat(0, len(novideo_df))
-
-    return pd.concat([video_df, novideo_df]).reset_index(drop=True)
+    return pd.DataFrame(columns=features, data=vals).fillna(0)
