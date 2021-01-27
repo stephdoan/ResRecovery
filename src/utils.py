@@ -105,7 +105,7 @@ def create_ext_df(row, dtype, dummy_y=False, order=False):
 
     return temp_df
 
-def convert_ms_df(df, sorted):
+def convert_ms_df(df, sorted=True):
     """
     takes in a network-stats df and explodes the extended columns.
     time is converted from seconds to milliseconds.
