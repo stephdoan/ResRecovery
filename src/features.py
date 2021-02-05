@@ -101,7 +101,7 @@ def chunk_data(df, interval=60):
         start = chunk * interval
         end = (chunk+1) * interval
 
-        temp_df = df[(df['Time'] >= start]) & (df['Time'] < end)]
+        temp_df = df[(df['Time'] >= start) & (df['Time'] < end)]
 
         df_list.append(temp_df)
 

@@ -1,6 +1,11 @@
 # data
 data/
 
+# dev py
+src/deprecated
+src/feat_test.py
+
+
 # dev notebooks
 
 # Byte-compiled / optimized / DLL files
