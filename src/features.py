@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import scipy as sp
+from scipy.signal import find_peaks
 
 from utils import *
 
@@ -70,6 +71,24 @@ def spectral_features(df, col):
 
     return [f[loc_max], Pxx_den[loc_max], prominences[idx_max]]
 
+def peak_times(df,col,thresh):
+    x = df[col]
+    peaks, _ = find_peaks(x, height=thresh)
+    if list(peaks) == []:
+        return [-1]
+    times = df.iloc[peaks]['Time'].values
+    time_between_peaks = [times[i]-times[i-1]for i in range(1,len(times))]
+    #print(time_between_peaks)
+    #time_between_peaks[0]=0
+    if time_between_peaks == []:
+        return -1
+    return time_between_peaks
+
+def num_peaks(df,col,thresh):
+    x = df[col]
+    peaks, _ = find_peaks(x, height=thresh)
+    return len(peaks)
+
 def binned_freq(placeholder):
     """
     dummy implementation of binned frequencies
@@ -126,6 +145,8 @@ def create_features(df, interval=60):
         'upl_peak_avg',
         'upl_peak_var',
         'upl_peak_std',
+        'IMAN_dwn_time_peak',#'IMAN_up_time_peak',
+        'IMAN_dwn_num_peak'#,'IMAN_up_num_peak'
     ]
 
     vals = []
@@ -150,13 +171,25 @@ def create_features(df, interval=60):
         dwl_peak = peak_time_diff(chunk, '2->1Bytes')
         upl_peak = peak_time_diff(chunk, '1->2Bytes')
 
+        ## iman's time between peak 
+        iman_dwn_time_peak = np.mean(peak_times(chunk,'2->1Bytes',1000000))
+        #iman_up_time_peak = np.mean(peak_times(chunk,'1->2Bytes',50000))
+
+        ## iman's num peak
+        iman_dwn_num_peak = num_peaks(chunk,'2->1Bytes',1000000)
+        #iman_up_num_peak = num_peaks(chunk,'1->2Bytes',50000)
+
         feat_val = np.hstack((
-          dwl_spectral,
-          dwl_agg,
-          dwl_peak,
-          upl_spectral,
-          upl_agg,
-          upl_peak
+            dwl_spectral,
+            dwl_agg,
+            dwl_peak,
+            upl_spectral,
+            upl_agg,
+            upl_peak,
+            iman_dwn_time_peak,
+            #iman_up_time_peak,
+            iman_dwn_num_peak,
+            #iman_up_num_peak
         ))
 
         vals.append(feat_val)
