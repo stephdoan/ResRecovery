@@ -5,6 +5,8 @@ data/
 src/deprecated
 src/feat_test.py
 
+# web-driver
+web-driver/
 
 # dev notebooks
 
