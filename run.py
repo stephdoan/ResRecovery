@@ -48,7 +48,7 @@ def main(targets):
       features.to_csv('features.csv')
 
       print('Features located in "features.csv". \n')
-      print('Video == 1; No Video == 0')
+      print('240p == 0; 480p == 1; 1080p == 2')
       preds = clf.predict(features)
       print(preds)
 
