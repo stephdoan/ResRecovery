@@ -31,7 +31,18 @@ for link in video_links:
 
     ## skip ad
 
-    time.sleep(10)
+    ## check if ad is paused
+    time.sleep(5)
+
+    try:
+        driver.execute_script(
+            "document.getElementById('movie_player').getPlayerState()"
+        )
+    
+    except:
+        pass
+
+    time.sleep(5)
     
     try:
         skip_ad = driver.find_element_by_class_name("ytp-ad-skip-button-container")
@@ -50,48 +61,47 @@ for link in video_links:
     time.sleep(2)
     print(volume_status)
 
+
     ## iterate through resolutions
 
     for curr_res in resolutions:
-        playback_settings = driver.find_element_by_class_name("ytp-settings-button")
-        playback_settings.click()
-        
+
+        ## get video duration
         time.sleep(2)
-        
+        video_dur = driver.execute_script(
+                        "return document.getElementById('movie_player').getCurrentTime()"
+                    )
+
+        video_len = driver.execute_script(
+                        "return document.getElementById('movie_player').getDuration()"
+                    )
+
+        print(video_len)
+
+        ## open settings menu
+
+        time.sleep(2)
+        driver.find_element_by_class_name("ytp-settings-button").click()
+
+        ## get resolution
+
         driver.find_element_by_xpath("//div[contains(text(),'Quality')]").click()
-        
+
         time.sleep(2)
         
         quality = driver.find_element_by_xpath("//span[contains(string(), '{}')]".format(curr_res))
         quality.click()
 
-    ## get video duration
-    time.sleep(2)
-    video_dur = driver.execute_script(
-                    "return document.getElementById('movie_player').getCurrentTime()"
-                    )
+        ## reload and restart video
+        driver.get(link)
 
-    video_len = driver.execute_script(
-                    "return document.getElementById('movie_player').getDuration()"
-                    )
+        
 
-    print(video_len)
+
+        time.sleep(5)
+
 
     time.sleep(5)
 
-driver.close()
+#driver.close()
 
-# playback_settings = driver.find_element_by_class_name("ytp-settings-button")
-# playback_settings.click()
-#
-# time.sleep(2)
-#
-# driver.find_element_by_xpath("//div[contains(text(),'Quality')]").click()
-#
-# time.sleep(2)
-#
-# quality = driver.find_element_by_xpath("//span[contains(string(),'144p')]")
-# quality.click()
-# print("Element is visible? " + str(quality.is_displayed()))
-#
-# driver.close()
