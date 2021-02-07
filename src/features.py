@@ -126,7 +126,7 @@ def chunk_data(df, interval=60):
 
     return df_list
 
-def create_features(df, interval=60):
+def create_features(filepath, interval=60):
 
     features = [
         'dwl_peak_freq',
@@ -150,6 +150,8 @@ def create_features(df, interval=60):
     ]
 
     vals = []
+
+    df = pd.read_csv(filepath)
 
     df_chunks = chunk_data(df, interval)
 
