@@ -1,35 +1,14 @@
 import os
 import re
+import shutil
 import numpy as np
 import pandas as pd
 
-### File Handling ###
-def organize_data(data_dir):
-    """
-    takes in a list of data files and splits into two arrays. one array holds
-    video data (youtube) and the other holds no video data.
+### Reset Repo ###
+def reset():
 
-    primarily used to create training data.
-    """
-    nostream_lst = []
-    stream_lst = []
-    providers = r"amazonprime|disneyplus|espnplus|\
-                hbomax|hulu|netflix|vimeo|youtube"
-
-    fp_lst = os.listdir(data_dir)
-
-    vpn = [fp for fp in fp_lst if re.search(r'-vpn-', fp)]
-
-    for fp in vpn:
-        streaming = re.findall(providers, fp.lower())
-
-        if streaming:
-            stream_lst.append(fp)
-        else:
-            nostream_lst.append(fp)
-
-    return np.array((np.array(nostream_lst), np.array(stream_lst)))
-
+    if os.path.exists('features.csv'):
+        os.remove('features.csv')
 
 ### General Cleaning ###
 def std_df(df, time):

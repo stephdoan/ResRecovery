@@ -6,9 +6,10 @@ src/deprecated
 src/feat_test.py
 
 # web-driver
-web-driver/
+web-drivers/
 
 # dev notebooks
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
