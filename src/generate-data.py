@@ -1,107 +1,81 @@
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.chrome.options import Options
-from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
 import time
+import subprocess
+import json
 
-resolutions = [
-    '240p',
-    '480p'
-]
+generate_data_params = json.load(open("../config/generate-data-params.json"))
+
+network_stats = generate_data_params["path"]
+interface = generate_data_params["interface"]
+outdir = generate_data_params["outdir"]
+resolutions = ['240p', '720p'] #generate_data_params["resolutions"]
 
 PATH = "../web-drivers/chromedriver.exe"
-# driver_options = Options()
-# driver_options.headless = True
-driver = webdriver.Chrome(PATH)#, options=driver_options)
 
-## users need to supply a playlist of videos to watch from
-
-## or should this iterate through resolutions and then an outer
-## wrapper function iterates through a playlist?
+driver = webdriver.Chrome(PATH)
 
 ## go to playlist
-driver.get("https://youtube.com/playlist?list=PL51jetv1tnxncETYqCffQTfyOyES9YOVx")
+driver.get("https://www.youtube.com/playlist?list=PL51jetv1tnxlzspzw_ljtr3H-vYPrvxGb")
 
 videos = driver.find_elements_by_id("video-title")
 video_links = [link.get_attribute("href") for link in videos]
 
-for link in video_links:
-    driver.get(link)
-    print(driver.title)
+driver_wait = WebDriverWait(driver, 15)
 
-    ## skip ad
+for target_res in resolutions:
 
-    ## check if ad is paused
-    time.sleep(5)
+    for link in video_links[:2]:
+        driver.get(link)
 
-    try:
-        driver.execute_script(
-            "document.getElementById('movie_player').getPlayerState()"
-        )
-    
-    except:
-        pass
+        ## skip ad
 
-    time.sleep(5)
-    
-    try:
-        skip_ad = driver.find_element_by_class_name("ytp-ad-skip-button-container")
-        skip_ad.click()
-    
-    except NoSuchElementException:
-        pass
+        ## check if ad is paused
 
-    ## mute
-    mute_btn = driver.find_element_by_class_name("ytp-mute-button")
-    volume_status = mute_btn.get_attribute("title")
+        try:
+            video_ad = driver_wait.until(
+                EC.element_to_be_clickable((By.CLASS_NAME, "ytp-ad-skip-button-container"))
+            )
 
-    if "Mute" in volume_status:
-        mute_btn.click()
+            video_ad.click()
+        
+        except (NoSuchElementException, TimeoutException) as e:
+            pass
 
-    time.sleep(2)
-    print(volume_status)
-
-
-    ## iterate through resolutions
-
-    for curr_res in resolutions:
-
-        ## get video duration
-        time.sleep(2)
-        video_dur = driver.execute_script(
-                        "return document.getElementById('movie_player').getCurrentTime()"
-                    )
-
-        video_len = driver.execute_script(
-                        "return document.getElementById('movie_player').getDuration()"
-                    )
-
-        print(video_len)
-
-        ## open settings menu
-
-        time.sleep(2)
-        driver.find_element_by_class_name("ytp-settings-button").click()
+        time.sleep(3)
 
         ## get resolution
+
+        settings_button = driver_wait.until(
+            EC.element_to_be_clickable((By.CLASS_NAME, "ytp-settings-button"))
+        )
+        settings_button.click()
+        #driver.find_element_by_class_name("ytp-settings-button").click()
 
         driver.find_element_by_xpath("//div[contains(text(),'Quality')]").click()
 
         time.sleep(2)
         
-        quality = driver.find_element_by_xpath("//span[contains(string(), '{}')]".format(curr_res))
+        quality = driver.find_element_by_xpath("//span[contains(string(), '{}')]".format(target_res))
         quality.click()
 
-        ## reload and restart video
-        driver.get(link)
-
+        ## collect data
+        collect_data = subprocess.Popen(['python', network_stats, '-i' + interface, '-e' + target_res + '-' + link[-1] + '.csv'])
         
+        driver.refresh()
+
+        video_len = driver.execute_script(
+                        "return document.getElementById('movie_player').getDuration()"
+                    )
+
+        time.sleep(300)
+
+        collect_data.terminate()
+
+driver.close()
 
 
-        time.sleep(5)
-
-
-    time.sleep(5)
-
-#driver.close()
 
