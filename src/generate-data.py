@@ -1,53 +1,85 @@
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
 import time
+import subprocess
+import json
 
-PATH = "../web-drivers/chromedriver.exe"
-# driver_options = Options()
-# driver_options.headless = True
-driver = webdriver.Chrome(PATH)#, options=driver_options)
+if __name__ == "__main__":
 
-## users need to supply a playlist of videos to watch from
+    generate_data_params = json.load(open("../config/generate-data-params.json"))
 
-## or should this iterate through resolutions and then an outer
-## wrapper function iterates through a playlist?
+    network_stats = generate_data_params["path"]
+    interface = generate_data_params["interface"]
+    outdir = generate_data_params["outdir"]
+    resolutions = ['240p', '1080p'] #generate_data_params["resolutions"]
 
-## go to playlist
-driver.get("https://youtube.com/playlist?list=PL51jetv1tnxncETYqCffQTfyOyES9YOVx")
+    PATH = "../web-drivers/chromedriver.exe"
 
-videos = driver.find_elements_by_id("video-title")
-video_links = [link.get_attribute('href') for link in videos]
+    driver = webdriver.Chrome(PATH)
 
-for link in video_links:
-    driver.get(link)
-    print(driver.title)
-    time.sleep(10)
+    ## go to playlist
+    driver.get("https://www.youtube.com/playlist?list=PL51jetv1tnxlzspzw_ljtr3H-vYPrvxGb")
 
-driver.close()
-## click a video
-# videos = driver.find_element_by_id("thumbnail")
-# videos.click()
-#
-# # wait & skip ad
-# time.sleep(10)
-#
-# skip_ad = driver.find_elements_by_class_name("ytp-ad-skip-button-container")
-#
-# if len(skip_ad) > 0:
-#     skip_ad[0].click()
-#
-# playback_settings = driver.find_element_by_class_name("ytp-settings-button")
-# playback_settings.click()
-#
-# time.sleep(2)
-#
-# driver.find_element_by_xpath("//div[contains(text(),'Quality')]").click()
-#
-# time.sleep(2)
-#
-# quality = driver.find_element_by_xpath("//span[contains(string(),'144p')]")
-# quality.click()
-# print("Element is visible? " + str(quality.is_displayed()))
-#
-# driver.close()
+    videos = driver.find_elements_by_id("video-title")
+    video_links = [link.get_attribute("href") for link in videos]
+
+    driver_wait = WebDriverWait(driver, 15)
+
+    for target_res in resolutions:
+
+        for link in video_links[:2]:
+            driver.get(link)
+
+            ## skip ad
+
+            ## check if ad is paused
+
+            player_status = driver.execute_script("return document.getElementById('movie_player').getPlayerState()")
+            print(player_status)
+            try:
+                video_ad = driver_wait.until(
+                    EC.element_to_be_clickable((By.CLASS_NAME, "ytp-ad-skip-button-container"))
+                )
+
+                video_ad.click()
+            
+            except (NoSuchElementException, TimeoutException) as e:
+                pass
+
+            time.sleep(3)
+
+            ## get resolution
+
+            # settings_button = driver_wait.until(
+            #     EC.element_to_be_clickable((By.CLASS_NAME, "ytp-settings-button"))
+            # )
+            # settings_button.click()
+            driver.find_element_by_class_name("ytp-settings-button").click()
+
+            driver.find_element_by_xpath("//div[contains(text(),'Quality')]").click()
+
+            time.sleep(2)
+            
+            quality = driver.find_element_by_xpath("//span[contains(string(), '{}')]".format(target_res))
+            quality.click()
+
+            ## collect data
+            collect_data = subprocess.Popen(['python', network_stats, '-i' + interface, '-e' + target_res + '-' + link[-1] + '.csv'])
+            
+            driver.refresh()
+
+            video_len = driver.execute_script(
+                            "return document.getElementById('movie_player').getDuration()"
+                        )
+
+            time.sleep(5)
+
+            collect_data.terminate()
+
+    driver.close()
+
+
+
