@@ -4,11 +4,13 @@ data/
 # dev py
 src/deprecated
 src/feat_test.py
+generate-data-class.py
 
 # web-driver
 web-drivers/
 
 # dev notebooks
+vet-data.ipynb
 
 
 # Byte-compiled / optimized / DLL files
