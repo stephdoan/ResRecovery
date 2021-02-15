@@ -1,0 +1,19 @@
+#jumbotron_1 {
+    text-align: center;
+}
+
+.nav-link{
+    margin-left: 120px;
+}
+
+.h1-style{
+    margin-top: 10px;
+    text-align: center;
+    font-style: italic;
+}
+
+.p-style{
+    text-align: center;
+    margin-left: 60px;
+    margin-right: 60px;
+}
