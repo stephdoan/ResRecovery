@@ -1,5 +1,6 @@
 # data
 data/
+training.csv
 
 # dev py
 src/deprecated
