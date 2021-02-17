@@ -17,16 +17,6 @@ def agg_feat(df, col):
 
 
 ### Peak Related Aggregate Features ###
-def get_peak_loc(df, col, strict=1):
-    """
-    takes in a dataframe, column, and strictness level. threshold is determined
-    by positive standard deviations from the average. strict is default at 1.
-
-    returns an array of peak locations (index).
-    """
-    threshold = df[col].mean() + (strict * df[col].std())
-    return np.array(df[col] > threshold)
-
 def peak_time_diff(df, col):
     """
     mess around with the different inputs for function.
