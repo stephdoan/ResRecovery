@@ -1,13 +1,7 @@
 {
-  "playlist": "https://www.youtube.com/playlist?list=PL51jetv1tnxlzspzw_ljtr3H-vYPrvxGb",
-  "path": "../network-stats/network_stats.py",
-  "interface": "\bDevice\bNPF_{D8E8F10D-FE77-4793-9F25-3CE29F685FB9}",
+  "network_stats_path": "../network-stats/network_stats.py",
+  "interface": "user_interface",
+  "playlist": "https://youtube.com/playlist?list=PL51jetv1tnxncETYqCffQTfyOyES9YOVx",
   "outdir": "../data/generated/",
-  "resolutions": [
-    "240p", 
-    "360p", 
-    "480p", 
-    "720p", 
-    "1080p"
-  ]
+  "resolutions": ["240p", "360p", "480p", "720p", "1080p"]
 }

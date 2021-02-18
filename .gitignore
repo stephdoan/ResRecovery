@@ -5,13 +5,13 @@ data/
 src/deprecated
 src/feat_test.py
 generate-data-class.py
+stdoan-generate-data-params.json
 
 # web-driver
 web-drivers/
 
 # dev notebooks
 vet-data.ipynb
-
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
