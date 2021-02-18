@@ -1,11 +1,13 @@
 # data
 data/
+training.csv
 
 # dev py
 src/deprecated
 src/feat_test.py
 generate-data-class.py
 stdoan-generate-data-params.json
+src/generate-data-class.py
 
 # web-driver
 web-drivers/
@@ -25,7 +27,6 @@ __pycache__/
 .Python
 build/
 develop-eggs/
-dist/
 downloads/
 eggs/
 .eggs/

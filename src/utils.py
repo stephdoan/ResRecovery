@@ -1,6 +1,6 @@
 import os
 import re
-import shutil
+
 import numpy as np
 import pandas as pd
 
@@ -9,33 +9,6 @@ def reset():
 
     if os.path.exists('features.csv'):
         os.remove('features.csv')
-
-### General Cleaning ###
-def std_df(df, time):
-    """
-    Takes unix time and standardizes to [time unit] starting from 0.
-    time is the time_column
-    """
-    df[time] = df[time] - df[time].min()
-    return df
-
-def filter_ip(df):
-    """
-    filters out local ip addresses
-    """
-    multicast = r'2[2-3][4-9].'
-    multicast_IPv6 = r'FE02'
-    linklocal = r'FE80'
-
-    clean_df = df[
-        ~df['IP1'].str.contains(multicast)][
-        ~df['IP1'].str.contains(multicast_IPv6)][
-        ~df['IP1'].str.contains(linklocal)][
-        ~df['IP2'].str.contains(multicast)][
-        ~df['IP2'].str.contains(multicast_IPv6)][
-        ~df['IP2'].str.contains(linklocal)]
-
-    return clean_df
 
 ### Extended Column Cleaning ###
 def clean_ext_entry(entry, dtype):
@@ -84,7 +57,7 @@ def create_ext_df(row, dtype, dummy_y=False, order=False):
 
     return temp_df
 
-def convert_ms_df(df, sorted=True):
+def convert_ms_df(df, agg=True, sorted=True):
     """
     takes in a network-stats df and explodes the extended columns.
     time is converted from seconds to milliseconds.
@@ -102,24 +75,22 @@ def convert_ms_df(df, sorted=True):
     ms_df['Time'] = pd.to_datetime(ms_df['Time'], unit='ms')
 
     # aggregate occurances that happen at the same second
-    grouped_ms_src = ms_df.groupby(['Time', 'pkt_src']
-                            ).agg({'pkt_size':'sum'}).reset_index()
+    if agg: 
+        grouped_ms_src = ms_df.groupby(['Time', 'pkt_src']
+                                ).agg({'pkt_size':'sum'}).reset_index()
 
-    return grouped_ms_src
-
-### Preprocess Helper ###
-def label_data(df, video, labels):
-    """
-    video is a boolean; True if video and false else
-    """
-
-    if not labels:
-        return df
-
+    
+        return grouped_ms_src
     else:
-        if video:
-            df['video'] = np.ones(len(df))
-        else:
-            df['video'] = np.zeros(len(df))
+        return ms_df
 
-    return df
+### Peak Related ###
+def get_peak_loc(df, col, strict=1):
+    """
+    takes in a dataframe, column, and strictness level. threshold is determined
+    by positive standard deviations from the average. strict is default at 1.
+
+    returns an array of peak locations (index).
+    """
+    threshold = df[col].mean() + (strict * df[col].std())
+    return np.array(df[col] > threshold)
