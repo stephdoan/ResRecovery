@@ -3,9 +3,10 @@ data/
 training.csv
 
 # dev py
+stdoan-generate-data-params.json
+
 src/deprecated
 src/feat_test.py
-stdoan-generate-data-params.json
 src/generate-data-class.py
 src/dev_generate_data.py
 
