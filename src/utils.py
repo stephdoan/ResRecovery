@@ -4,13 +4,13 @@ import re
 import numpy as np
 import pandas as pd
 
-### Reset Repo ###
+# Reset Repo 
 def reset():
 
     if os.path.exists('features.csv'):
         os.remove('features.csv')
 
-### Extended Column Cleaning ###
+# Extended Column Cleaning 
 def clean_ext_entry(entry, dtype):
     """
     takes an entry, cleans the lists, and stores values in a numpy array.
@@ -84,7 +84,7 @@ def convert_ms_df(df, agg=True, sorted=True):
     else:
         return ms_df
 
-### Peak Related ###
+# Peak Related 
 def get_peak_loc(df, col, strict=1):
     """
     takes in a dataframe, column, and strictness level. threshold is determined
@@ -94,3 +94,11 @@ def get_peak_loc(df, col, strict=1):
     """
     threshold = df[col].mean() + (strict * df[col].std())
     return np.array(df[col] > threshold)
+
+# Add Resolution Column
+def add_resolution(fp, res):
+  temp_df = pd.read_csv(fp)
+  temp_df['resolution'] = res
+  return temp_df
+
+# Read in all Data
