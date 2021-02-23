@@ -10,6 +10,12 @@ def reset():
     if os.path.exists('features.csv'):
         os.remove('features.csv')
 
+#
+def load_data_folder_path(path):
+    data_files = os.listdir(path)
+    
+    return
+
 # Extended Column Cleaning 
 def clean_ext_entry(entry, dtype):
     """
@@ -44,9 +50,9 @@ def create_ext_df(row, dtype, dummy_y=False, order=False):
 
     temp_df = pd.DataFrame(
         {
-          'Time': clean_ext_entry(row['packet_times'], dtype),
-          'pkt_size': clean_ext_entry(row['packet_sizes'], dtype),
-          'pkt_src': clean_ext_entry(row['packet_dirs'], str)
+          'Time': row['packet_times'].apply(lambda x: x[:-1].split(';')).astype(dtype),
+          'pkt_size': row['packet_dirs'].apply(lambda x: x[:-1].split(';')).astype(dtype),
+          'pkt_src': row['packet_sizes'].apply(lambda x: x[:-1].split(';')).astype(dtype)
         }
     )
 
@@ -57,32 +63,26 @@ def create_ext_df(row, dtype, dummy_y=False, order=False):
 
     return temp_df
 
-def convert_ms_df(df, agg=True, sorted=True):
+def convert_ms_df(df, sorted=True):
     """
     takes in a network-stats df and explodes the extended columns.
     time is converted from seconds to milliseconds.
     drop the ip address columns and the aggregate columns.
     """
-    df_lst = []
+    pkt_time = np.hstack((df['packet_times'].apply(lambda x: x[:-1].split(';')))).astype(np.int64)
+    pkt_size = np.hstack((df['packet_sizes'].apply(lambda x: x[:-1].split(';')))).astype(int)
+    pkt_dir = np.hstack((df['packet_dirs'].apply(lambda x: x[:-1].split(';')))).astype(int)
 
-    df.apply(lambda x: df_lst.append(create_ext_df(x, np.int64)), axis=1)
+    ext_df = pd.DataFrame({
+        'Time': pkt_time,
+        'pkt_dir': pkt_dir,
+        'pkt_size': pkt_size
+    })
 
-    ms_df = pd.concat(df_lst)
+    sorted_df = ext_df.sort_values('Time')
+    sorted_df['Time'] = pd.to_datetime(sorted_df['Time'], unit='ms')
 
-    if sorted:
-        ms_df = ms_df.sort_values(by=['Time'])
-
-    ms_df['Time'] = pd.to_datetime(ms_df['Time'], unit='ms')
-
-    # aggregate occurances that happen at the same second
-    if agg: 
-        grouped_ms_src = ms_df.groupby(['Time', 'pkt_src']
-                                ).agg({'pkt_size':'sum'}).reset_index()
-
-    
-        return grouped_ms_src
-    else:
-        return ms_df
+    return sorted_df
 
 # Peak Related 
 def get_peak_loc(df, col, strict=1):
