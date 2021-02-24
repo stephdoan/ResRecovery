@@ -8,6 +8,7 @@ src/feat_test.py
 generate-data-class.py
 stdoan-generate-data-params.json
 src/generate-data-class.py
+src/dev_generate_data.py
 
 # web-driver
 web-drivers/
