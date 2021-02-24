@@ -8,11 +8,29 @@ def reset():
     if os.path.exists('features.csv'):
         os.remove('features.csv')
 
-#
-def load_data_folder_path(path):
-    data_files = os.listdir(path)
+# Chunk Data
+def chunk_data(df, interval=120):
+    """
+    takes in a filepath to the data you want to chunk and feature engineer
+    chunks our data into a specified time interval
+    each chunk is then turned into an observation to be fed into our classifier
+    """
+    df_list = []
     
-    return
+    df['Time'] = df['Time'] - df['Time'].min()
+    
+    total_chunks = np.floor(df['Time'].max() / interval).astype(int)
+
+    for chunk in np.arange(total_chunks):
+      
+        start = chunk * interval
+        end = (chunk+1) * interval
+
+        temp_df = (df[(df['Time'] >= start) & (df['Time'] < end)])
+        
+        df_list.append(temp_df)
+        
+    return df_list
 
 # Extended Column Cleaning 
 def clean_ext_entry(entry, dtype):
