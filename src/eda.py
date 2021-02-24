@@ -1,5 +1,6 @@
 import sys
 import scipy as sp
+from scipy import signal
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -194,7 +195,7 @@ def subplot_peak_kde_hist(peaks_df1, peaks_df2, res_lst):
 # Spectral Analysis
 def subplot_periodogram(df1, df2, size, res_lst):
   sns.set_style('whitegrid')
-  fig, axes = plt.subplots(5, 2, figsize=(24, 18), sharex=False, sharey=False)
+  fig, axes = plt.subplots(5, 2, figsize=(24, 18), sharex=True, sharey=False)
 
   color_lst = sns.color_palette()
 
@@ -218,12 +219,6 @@ def subplot_periodogram(df1, df2, size, res_lst):
     j += 1
 
   # aesthetic
-  fig.legend(
-    res_lst[::-1],
-    loc="lower center",
-    title="Resolution",
-    ncol=len(res_lst)
-  )
 
   plt.suptitle('Periodogram - 2s Resample (Binning)', fontsize=20)
   plt.subplots_adjust(top=0.90)
