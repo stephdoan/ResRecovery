@@ -1,7 +1,5 @@
 import sys
-import numpy as np
-import pandas as pd
-
+import scipy as sp
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -194,5 +192,40 @@ def subplot_peak_kde_hist(peaks_df1, peaks_df2, res_lst):
   fig.show()
 
 # Spectral Analysis
-def subplot_periodogram(df1, df2,):
-  return
+def subplot_periodogram(df1, df2, size, res_lst):
+  sns.set_style('whitegrid')
+  fig, axes = plt.subplots(5, 2, figsize=(24, 18), sharex=False, sharey=False)
+
+  color_lst = sns.color_palette()
+
+  df1_resample_lst = [convert_ms_df(df).resample(size, on='Time').sum() * mbit_rate for df in df1]
+  df2_resample_lst = [convert_ms_df(df).resample(size, on='Time').sum() * mbit_rate for df in df2]
+
+  # plot user 1
+  i = 0
+  for df in df1_resample_lst:
+    f, Pxx = sp.signal.welch(df['pkt_size'], fs=.5)
+    sns.lineplot(f, Pxx, ax=axes[i, 0], label=res_lst[i], color=color_lst[i])
+    axes[i, 0].set_title("User 1 - {}".format(res_lst[i]), fontsize=16)
+    i += 1
+
+  # plot user 2
+  j = 0
+  for df in df2_resample_lst:
+    f, Pxx = sp.signal.welch(df['pkt_size'], fs=.5)
+    sns.lineplot(f, Pxx, ax=axes[j, 1], label=res_lst[j], color=color_lst[j])
+    axes[j, 1].set_title("User 2 - {}".format(res_lst[j]), fontsize=16)
+    j += 1
+
+  # aesthetic
+  fig.legend(
+    res_lst[::-1],
+    loc="lower center",
+    title="Resolution",
+    ncol=len(res_lst)
+  )
+
+  plt.suptitle('Periodogram - 2s Resample (Binning)', fontsize=20)
+  plt.subplots_adjust(top=0.90)
+    
+  fig.show()
