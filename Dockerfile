@@ -19,7 +19,10 @@ USER root
 RUN	apt-get install htop
 
 # 3) install packages
+
 RUN pip install --no-cache-dir networkx scipy python-louvain
+RUN pip install --no-cache-dir tensorflow
+RUN pip install --no-cache-dir keras  
 
 # 4) change back to notebook user
 COPY /run_jupyter.sh /
