@@ -90,7 +90,7 @@ def rolling_bytes_stream(df_lst, res_lst, xlim, window_size_small, window_size_l
   # preprocess data for plotting
   x_s = np.arange(xlim)
   x_l = np.arange(window_size_large, xlim + window_size_large)
-  pre_rolling = [convert_ms_df(df).resample(sample_size, on='Time').sum()[['pkt_size']] for df in df_lst]
+  pre_rolling = [explode_extended(df).resample(sample_size, on='Time').sum()[['pkt_size']] for df in df_lst]
   rolling_s_sum = [df.rolling(window_size_small).mean().fillna(0) * mbit_rate for df in pre_rolling]
   rolling_l_sum = [df.rolling(window_size_large).mean().fillna(0) * mbit_rate for df in pre_rolling]
   rolling_sum_dict = {res_lst[i]: (rolling_s_sum[i], rolling_l_sum[i], color_lst[i]) for i in np.arange(len(res_lst))}
@@ -199,8 +199,8 @@ def subplot_periodogram(df1, df2, size, res_lst):
 
   color_lst = sns.color_palette()
 
-  df1_resample_lst = [convert_ms_df(df).resample(size, on='Time').sum() * mbit_rate for df in df1]
-  df2_resample_lst = [convert_ms_df(df).resample(size, on='Time').sum() * mbit_rate for df in df2]
+  df1_resample_lst = [explode_extended(df).resample(size, on='Time').sum() * mbit_rate for df in df1]
+  df2_resample_lst = [explode_extended(df).resample(size, on='Time').sum() * mbit_rate for df in df2]
 
   # plot user 1
   i = 0
