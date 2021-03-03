@@ -85,7 +85,6 @@ def subplot_byte_stream(df1_lst, df2_lst, res_lst, byte_dir, xlim):
   fig.show()
 
 def rolling_bytes_stream(df_lst, res_lst, xlim, window_size_small, window_size_large, sample_size):
-
   color_lst = sns.color_palette()
   # preprocess data for plotting
   x_s = np.arange(xlim)
