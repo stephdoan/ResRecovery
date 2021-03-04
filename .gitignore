@@ -1,4 +1,17 @@
 # Created by .ignore support plugin (hsz.mobi)
+
+# network-stats
+network-stats/
+web-drivers/
+vet-data.ipynb
+generate-data-class.py
+config
+data/generated_data
+data/test_data
+data/test/
+data/720p.zip
+data/1080p.zip
+deprecated
 ### Python template
 # Byte-compiled / optimized / DLL files
 __pycache__/
