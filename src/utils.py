@@ -54,17 +54,21 @@ def explode_extended(df):
 def get_peak_loc(df, col, strict=1):
     """
     takes in a dataframe, column, and strictness level. threshold is determined
-    by positive standard deviations from the average. strict is default at 1.
+    by positive standard deviations from the average. strictness is default at 1.
 
     returns an array of peak locations (index).
     """
-    threshold = df[col].mean() + (strict * df[col].std())
+    threshold = np.mean(df[col]) + (strict * np.std(df[col]))
     return np.array(df[col] > threshold)
 
 # Add Resolution Column
 def add_resolution(fp, res):
-  temp_df = pd.read_csv(fp)
-  temp_df['resolution'] = res
-  return temp_df
+    temp_df = pd.read_csv(fp)
+    temp_df['resolution'] = res
+    return temp_df
 
 # Read in all Data
+def load_data(resolution, path):
+    data_filepath = path + resolution + "/"
+    data_dir = os.listdir(data_filepath)
+    return [add_resolution(data_filepath + fp, resolution) for fp in data_dir]
