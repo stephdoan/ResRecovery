@@ -20,22 +20,13 @@ video_resolutions: ["144p", "240p", "360p", "480p", "720p", "1080p"]
 
 In the final iteration of our model, we grouped the resolutions to be:
 
-- **Low**
+```python
+low_resolution: ["144p", "240p"]
+medium_resolution: ["360p", "480p"]
+high_resolution: ["720p", "1080p"]
+```
 
-  - _144p_
-  - _240p_
-
-- **Medium**
-
-  - _360p_
-  - _480p_
-
-- **High**
-
-  - _720p_
-  - _1080p_
-
-  Attempting to classify the exact numeric resolution proved to be difficult as factor such as an user's network conditions or maximum bandwidth affect how data is transmitted. A user with a slightly lower bandwidth than a peer's may be able to stream 1080p with no interruptions but they may receive slightly small byte payloads slightly more often.
+Attempting to classify the exact numeric resolution proved to be difficult as factor such as user's network conditions or maximum bandwidth affect how data is transmitted. A user with a slightly lower bandwidth than a peer's may be able to stream 1080p with no interruptions but they may receive slightly small byte payloads slightly more often. However, we can see visually see when more resources are required at certain resolution thresholds.
 
 ### Download Byte Stream
 
@@ -69,4 +60,4 @@ A key feature of our data is the increasing byte amount required to support incr
 
 # Model
 
-We found that a Random Forest classifier performed best. The model is able to give a low, medium, and high label when fed output data from [network-stats](https://github.com/viasat/network-stats). It performs very well on low resolution with few interclass misclassifications on the other labels.
+We found that a Random Forest classifier performed best. The model is able to give a low, medium, and high label when fed output data from [network-stats](https://github.com/viasat/network-stats). With very little hyperparameter tuning, our model is able to achieve an accuracy 88%. More importantly, there are very few misclassifications that span beyond neighboring labels (e.g. none of the low resolution was misclassified as high).
