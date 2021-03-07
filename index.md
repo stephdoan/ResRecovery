@@ -2,14 +2,6 @@
 layout: default
 ---
 
-Text can be **bold**, _italic_, or ~~strikethrough~~.
-
-[Link to another page](./another-page.html).
-
-There should be whitespace between paragraphs.
-
-There should be whitespace between paragraphs. We recommend including a README, or a file with information about your project.
-
 # Overview
 
 Virtual private networks, or VPNs, have seen a growth in popularity as more of the general population has come to realize the importance of maintaining data privacy and security while browsing the Internet. VPNs route their users’ network traffic data through their own private servers, allowing them to provide these users with extra anonymity and protection by disguising the details of their network activity. However, even with the loss of detail such as packet destination, user activity in a VPN tunnel is still identifiable.
@@ -20,11 +12,46 @@ Over the last ten weeks, we have built a classifier that is able to identify the
 
 Network traffic data was collected via the Viasat provided script, [network-stats](https://github.com/viasat/network-stats). The script collects details such as bytes being sent to the server/to the local machine on a second and millisecond level of detail.
 
-Our dataset is comprised of over 25 hours of network traffic of video playback from YouTube. YouTube was our primary source of video data as it allows full autonomy over video quality. The data collection process was also automated via a Selenium script developed by a group member.
+Our dataset is comprised of over 25 hours of network traffic of video playback from YouTube. YouTube was our primary source of video data as it allows full autonomy over video quality. The data collection process was also automated via a Selenium script developed by a group member. Our dataset includes video resolutions:
 
-A key feature of our data is the increasing byte amount required to support increasing resolution. As you will see below, many of our features attempt to capture the
+```python
+video_resolutions: ["144p", "240p", "360p", "480p", "720p", "1080p"]
+```
+
+In the final iteration of our model, we grouped the resolutions to be:
+
+- **Low**
+
+  - _144p_
+  - _240p_
+
+- **Medium**
+
+  - _360p_
+  - _480p_
+
+- **High**
+
+  - _720p_
+  - _1080p_
+
+  Attempting to classify the exact numeric resolution proved to be difficult as factor such as an user's network conditions or maximum bandwidth affect how data is transmitted. A user with a slightly lower bandwidth than a peer's may be able to stream 1080p with no interruptions but they may receive slightly small byte payloads slightly more often.
+
+### Download Byte Stream
+
+For our purposes, we primarily focused on the downloaded bytes stream. We saw that as resolution increases so does the frequency and magnitude of data. However, the magnitude of data being downloaded increases first and then the frequency. We use this knowledge to create some thresholding features to help set preliminary boundaries between resolutions.
+
+### Peaks
+
+A focus point of our model is looking at the large downloads being sent in a single second. Large is relative to the resolution but we found that using a hard threshold of 5 megabits produced subsets of data where many features could be extracted. Much like before, we take some basic aggregate statistics to describe the magnitude and spread of the peaks. But the most useful feature in our model from this peaks data is the time between peaks. Visually, we can see that there are much less peaks in the lower resolutions, relating back to the observed lower frequency in lower resolutions.
+
+### Spectral Analysis
+
+Much of our spectral features came from trying to characterize the resultant periodograms after applying Welch's method. Although [network-stats](https://github.com/viasat/network-stats) allows analysis on a millisecond level, and in turn, allowing us to capture [higher frequency signals](https://en.wikipedia.org/wiki/Nyquist%E2%80%93Shannon_sampling_theorem). But, even at high resolutions, the most commonly observed frequency of the strongest signal lies between the .2Hz - .3Hz. As a result, we rebin our data to be samples spaced at 2 seconds.
 
 # Features
+
+A key feature of our data is the increasing byte amount required to support increasing resolution. As you will see below, many of our features attempt to capture the increased bandwidth requirement. Below is a quick list and summary of all the features we used in our model.
 
 | Features         | Description                                                                                                                        |
 | :--------------- | :--------------------------------------------------------------------------------------------------------------------------------- |
@@ -35,68 +62,11 @@ A key feature of our data is the increasing byte amount required to support incr
 | peak_amount      | the total number of data peaks in the download direction                                                                           |
 | seconds_per_peak | the ratio of seconds to peaks                                                                                                      |
 | max_prominence   | max prominence of peaks taken from a periodogram generated by applying Welch's methods on a 2 second resampled version of the data |
-| prominence_std   | standard deviation of prominence; list of prominences generated from the same method as max_prominence                             |
+| prominence_std   | standard deviation of peak prominence; list of prominences generated from the same method as max_prominence                        |
 | rolling_cv       | coefficient of variation taken a rolling window version of the data                                                                |
 
-### There's a horizontal rule below this.
+## Feature Importance
 
----
+# Model
 
-### Here is an unordered list:
-
-- Item foo
-- Item bar
-- Item baz
-- Item zip
-
-### And an ordered list:
-
-1.  Item one
-1.  Item two
-1.  Item three
-1.  Item four
-
-### And a nested list:
-
-- level 1 item
-  - level 2 item
-  - level 2 item
-    - level 3 item
-    - level 3 item
-- level 1 item
-  - level 2 item
-  - level 2 item
-  - level 2 item
-- level 1 item
-  - level 2 item
-  - level 2 item
-- level 1 item
-
-### Small image
-
-![Octocat](https://github.githubassets.com/images/icons/emoji/octocat.png)
-
-### Large image
-
-![Branching](https://guides.github.com/activities/hello-world/branching.png)
-
-### Definition lists can be used with HTML syntax.
-
-<dl>
-<dt>Name</dt>
-<dd>Godzilla</dd>
-<dt>Born</dt>
-<dd>1952</dd>
-<dt>Birthplace</dt>
-<dd>Japan</dd>
-<dt>Color</dt>
-<dd>Green</dd>
-</dl>
-
-```
-Long, single-line code blocks should not wrap. They should horizontally scroll if they are too long. This line should be long enough to demonstrate this.
-```
-
-```
-The final element.
-```
+We found that a Random Forest classifier performed best. The model is able to give a low, medium, and high label when fed output data from [network-stats](https://github.com/viasat/network-stats). It performs very well on low resolution with few interclass misclassifications on the other labels.
