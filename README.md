@@ -6,10 +6,10 @@ Website: https://stephdoan.github.io/ResRecovery/
 
 1. [Abstract](#Abstract)
 2. [Config Files](#config)
-   1. [`train-params.json`](#train)
-   2. [`model-params.json`](#model)
-   3. [`user-data.json`](#user)
-   4. [`generate-data.json`](#generate)
+   - [`train-params.json`](#train)
+   - [`model-params.json`](#model)
+   - [`user-data.json`](#user)
+   - [`generate-data.json`](#generate)
 3. [Running the Project](#running)
 
 ## Abstract
