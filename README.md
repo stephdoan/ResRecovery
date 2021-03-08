@@ -6,6 +6,10 @@ Website: https://stephdoan.github.io/ResRecovery/
 
 1. [Abstract](#Abstract)
 2. [Config Files](#config)
+   1. [`train-params.json`](#train)
+   2. [`model-params.json`](#model)
+   3. [`user-data.json`](#user)
+   4. [`generate-data.json`](#generate)
 3. [Running the Project](#running)
 
 ## Abstract
@@ -15,6 +19,8 @@ Virtual private networks, or VPNs, have seen a growth in popularity as more of t
 <a name="config"></a>
 
 ## Configuration Files
+
+<a name="train"></a>
 
 ### `train-params.json`
 
@@ -43,6 +49,8 @@ All of the training data should be stored in an accessible `data` folder. CSV fi
  +-- 1080p
 ```
 
+<a name="model"></a>
+
 ### `model-params.json`
 
 Allows users to adjust hyperparameters of the random forest classifier. The default values are the values we utilized in our original project.
@@ -53,6 +61,8 @@ Allows users to adjust hyperparameters of the random forest classifier. The defa
 | n_estimators      | number of trees in the forest model                                      |
 | max_depth         | max depth of the tree                                                    |
 | min_samples_split | minimum number of samples required to split an internal node             |
+
+<a name="user"></a>
 
 ### `user-data.json`
 
@@ -65,6 +75,8 @@ Allows users to input their own data to be classified by the model.
 | threshold     | minimum megabit value; used in peak feature creation                                                                            |
 | prominence_fs | sampling rate to find the max peak prominence                                                                                   |
 | binned_fs     | deprecated parameter                                                                                                            |
+
+<a name="generate"></a>
 
 ### `generate-data.json`
 
