@@ -4,11 +4,11 @@ Website: https://stephdoan.github.io/ResRecovery/
 
 ## Abstract
 
-Virtual private networks, or VPNs, have seen a growth in popularity as more of the general population has come to realize the importance of maintaining data privacy and security while browsing the Internet. In previous works, our domain developed robust classifiers that could identify when a user was streaming video. As an extension, our group has developed a Random Forest model that determines the resolution at the time of video streaming.
+Virtual private networks, or VPNs, have seen a growth in popularity as more of the general population has come to realize the importance of maintaining data privacy and security while browsing the Internet. In previous works, our domain developed robust classifiers that could identify when a user was streaming video. As an extension, our group has developed a Random Forest model that determines the resolution at the time of video streaming. Our final model has an overall accuracy of **87%**.
 
 ## Config Files
 
-#### train-params.json
+### `train-params.json`
 
 Allows users to adjust some parameters of the training data creation process. The main point of focus is the `{interval}` argument. This allows users to adjust how big of a chunk size they would like their model to be trained on. The default is 300 seconds as it allows replication of our project.
 
@@ -20,7 +20,7 @@ Allows users to adjust some parameters of the training data creation process. Th
 | prominence_fs | sampling rate to find the max peak prominence                                                                   |
 | binned_fs     | deprecated parameter                                                                                            |
 
-#### model-params.json
+### `model-params.json`
 
 Allows users to adjust hyperparameters of the random forest classifier. The default values are the values we utilized in our original project.
 
@@ -31,7 +31,9 @@ Allows users to adjust hyperparameters of the random forest classifier. The defa
 | max_depth         | max depth of the tree                                                    |
 | min_samples_split | minimum number of samples required to split an internal node             |
 
-#### user-data.json
+### `user-data.json`
+
+Allows users to input their own data to be classified by the model.
 
 | Parameter     | Description                                                                                                                     |
 | ------------- | ------------------------------------------------------------------------------------------------------------------------------- |
@@ -42,6 +44,8 @@ Allows users to adjust hyperparameters of the random forest classifier. The defa
 | binned_fs     | deprecated parameter                                                                                                            |
 
 #### generate-data.json
+
+Parameters used by the `generate_data.py` script.
 
 | Parameter          | Description                                                                                                     |
 | ------------------ | --------------------------------------------------------------------------------------------------------------- |
