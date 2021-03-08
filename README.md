@@ -20,6 +20,21 @@ Allows users to adjust some parameters of the training data creation process. Th
 | prominence_fs | sampling rate to find the max peak prominence                                                                   |
 | binned_fs     | deprecated parameter                                                                                            |
 
+##### Data Folder Structure
+
+All of the training data should be stored in an accessible `data` folder. CSV files should be categorized into folders according to their resolution below.
+
+```
++-- data
+ |
+ +-- 144p
+ +-- 240p
+ +-- 360p
+ +-- 480p
+ +-- 720p
+ +-- 1080p
+```
+
 ### `model-params.json`
 
 Allows users to adjust hyperparameters of the random forest classifier. The default values are the values we utilized in our original project.
@@ -43,7 +58,7 @@ Allows users to input their own data to be classified by the model.
 | prominence_fs | sampling rate to find the max peak prominence                                                                                   |
 | binned_fs     | deprecated parameter                                                                                                            |
 
-#### generate-data.json
+### `generate-data.json`
 
 Parameters used by the `generate_data.py` script.
 
@@ -56,6 +71,8 @@ Parameters used by the `generate_data.py` script.
 | resolutions        | list of resolutions to be collected                                                                             |
 
 ## Running the Project
+
+The project was mean to be run on the UCSD DSMLP server.
 
 - <code>python run.py test</code> will test the various targets to ensure that all methods are running properly.
 
