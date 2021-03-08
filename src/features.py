@@ -97,14 +97,14 @@ def create_features(path, interval, threshold, prominence_fs, binned_fs):
         # average amount of bytes/second in a chunk
         download_avg = np.mean(chunk['2->1Bytes']) / mbit
         download_std = np.std(chunk['2->1Bytes']) / mbit
-        diff_pkts = np.mean(chunk['2->1Pkts'] - chunk['1->2Pkts'])
+        # diff_pkts = np.mean(chunk['2->1Pkts'] - chunk['1->2Pkts'])
 
         # peak - average, # peaks, seconds:peak ratio
         peak_feats = peak_features(chunk, '2->1Bytes', threshold)
 
         # spectral - standard deviation of densities, prominence 
-        psd_density = power_density(resample_2s, 3, binned_fs)
-        psd_density_stdev = np.std(psd_density)
+        # psd_density = power_density(resample_2s, 3, binned_fs)
+        # psd_density_stdev = np.std(psd_density)
         prominence_feat = spectral_features(resample_1s, 'pkt_size', prominence_fs)
 
         # coefficient of variation
@@ -113,9 +113,9 @@ def create_features(path, interval, threshold, prominence_fs, binned_fs):
         chunk_feat = np.hstack((
             download_avg,
             download_std,
-            diff_pkts,
+            # diff_pkts,
             peak_feats,
-            psd_density_stdev,
+            # psd_density_stdev,
             prominence_feat,
             rolling_cv
         ))
@@ -131,12 +131,12 @@ def create_training_data(folder_path, interval, threshold, prominence_fs, binned
     features = [
         "download_avg", 
         "download_std",
-        "diff_pkts",
+        # "diff_pkts",
         "peak_avg",
         "peak_std",
         "peak_amount", 
         "seconds_per_peak", 
-        "psd_std", 
+        # "psd_std", 
         "prominence_std",
         "max_prominence",
         "rolling_cv" 
