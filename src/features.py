@@ -1,12 +1,14 @@
 import os
+import sys
 import numpy as np
 import pandas as pd
 import scipy as sp
 from scipy.signal import find_peaks
 
-from src.utils import explode_extended, chunk_data
+sys.path.insert(0, '../src')
+from utils import explode_extended, chunk_data
 
-mbit_rate = 1/125000
+mbit_rate = 1/125000 
 
 def hard_threshold_peaks(df, col, thresh):
     """
