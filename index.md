@@ -54,7 +54,7 @@ In the graphic below, we can see that higher resolutions have much stronger sign
 
 # Features
 
-Below is a list and summary of all the features we used in our model. Every feature was made in
+Below is a list and summary of all the features we used in our model. Our features all follow the same theme of trying to characterize thresholds in the data to reflect the increased bandwidth requirement as resolution increases.
 
 | Features         | Description                                                                                                                                                                                                                                                                                                                                                                    |
 | :--------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -68,8 +68,20 @@ Below is a list and summary of all the features we used in our model. Every feat
 | prominence_std   | In the periodograms, high resolution data generates well defined peaks while lower resolution does not. In our max_prominence feature, we calculate the prominence values for all the peaks found in the data. We simply run take the standard deviation of this array to create this prominence_std feature.                                                                  |
 | rolling_cv       | Coefficient of variation taken over a rolling window version of the data                                                                                                                                                                                                                                                                                                       |
 
-## Feature Importance
-
 # Model
 
-We found that a Random Forest classifier performed best. The model is able to give a low, medium, and high label when fed output data from [network-stats](https://github.com/viasat/network-stats). With very little hyperparameter tuning, our model is able to achieve an accuracy 88%. More importantly, there are very few misclassifications that span beyond neighboring labels (e.g. none of the low resolution was misclassified as high).
+We found that a Random Forest classifier performed best. The model is able to give a low, medium, and high label when fed output data from [network-stats](https://github.com/viasat/network-stats). With very little hyperparameter tuning, our model is able to achieve an accuracy 87%. More importantly, there are very few misclassifications that span beyond neighboring labels (e.g. only 1 high resolution was misclassified as low). There is 2-class jump misclassification where a high resolution clip is predicted as low resolution. Observing the data, there are scenarios where sometimes a small subsection of a high resolution data could resemble low resolution or even no video streaming. For example, when Youtube plays an ad, the server stops sending data during the duration of the ad and the level of network activity is greatly decreased. The confusion matrix below provides more detail as to where misclassification can happen.
+
+### Confusion Matrix
+
+**Bold** is our model's predictions while _italic_ is the actual class. We included both the normalized and raw value.
+
+|          | **Low**   | **Medium** | **High**  |
+| :------- | :-------- | :--------- | :-------- |
+| _Low_    | 0.88 (29) | 0.12 (4)   | 0 (0)     |
+| _Medium_ | 0.08 (3)  | 0.84 (33)  | 0.08 (3)  |
+| _High_   | 0.02 (10  | 0.08 (3)   | 0.90 (35) |
+
+### Feature Importance
+
+![Feature Importance](img/feature_importance.png)
