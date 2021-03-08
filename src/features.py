@@ -1,9 +1,10 @@
+import os
 import numpy as np
 import pandas as pd
 import scipy as sp
 from scipy.signal import find_peaks
 
-from utils import explode_extended, chunk_data
+from src.utils import explode_extended, chunk_data
 
 mbit_rate = 1/125000
 
@@ -14,7 +15,7 @@ def hard_threshold_peaks(df, col, thresh):
     """
     x = df[col]
     peaks, _ = sp.signal.find_peaks(x, height=thresh)
-    return peaks
+    return peaks 
   
 def peak_features(df, col, threshold):
     """
@@ -76,7 +77,7 @@ def rolling_normalized_std(df, sample_size):
     roll_cv = normalized_std(df_roll, 'pkt_size')
     return roll_cv
   
-### Create Features ###
+# Create Features 
 def create_features(path, interval, threshold, prominence_fs, binned_fs):
     vals = []
 
@@ -107,9 +108,6 @@ def create_features(path, interval, threshold, prominence_fs, binned_fs):
         # coefficient of variation
         rolling_cv = rolling_normalized_std(resample_1s, 8)
 
-        download_cv = normalized_std(chunk, '2->1Bytes')
-        upload_cv = normalized_std(chunk, '1->2Bytes')
-
         chunk_feat = np.hstack((
             download_avg,
             download_std,
@@ -117,11 +115,51 @@ def create_features(path, interval, threshold, prominence_fs, binned_fs):
             peak_feats,
             psd_density_stdev,
             prominence_feat,
-            download_cv,
-            upload_cv,
             rolling_cv
         ))
 
         vals.append(chunk_feat)
     
     return vals
+
+# Create Training Data
+def create_training_data(folder_path, interval, threshold, prominence_fs, binned_fs):
+    resolutions = ['144p', '240p', '360p', '480p', '720p', '1080p']
+
+    features = [
+        "download_avg", 
+        "download_std",
+        "diff_pkts",
+        "peak_avg",
+        "peak_std",
+        "peak_amount", 
+        "seconds_per_peak", 
+        "psd_std", 
+        "prominence_std",
+        "max_prominence",
+        "rolling_cv" 
+    ]   
+
+    training = []
+
+    for res in resolutions:
+        full_path = folder_path + res +'/'
+        data_dir = [full_path + fp for fp in os.listdir(full_path)]
+
+        data_feats = np.vstack(
+            ([create_features(fp, interval, threshold, prominence_fs, binned_fs) for fp in data_dir]))
+
+        temp_df = pd.DataFrame(data=data_feats, columns=features)
+        
+        if res in ['144p', '240p']:
+            temp_df['resolution'] = 'low'
+
+        if res in ['360p', '480p']:
+            temp_df['resolution'] = 'medium'
+
+        if res in ['720p', '1080p']:
+            temp_df['resolution'] = 'high'
+
+        training.append(temp_df)
+    
+    return pd.concat((training))

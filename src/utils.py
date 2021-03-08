@@ -5,8 +5,11 @@ import pandas as pd
 # Reset Repo 
 def reset():
 
-    if os.path.exists('features.csv'):
-        os.remove('features.csv')
+    check_files = ['training.csv', 'test_training.csv']
+
+    for fp in check_files:
+        if os.path.exists(fp):
+            os.remove(fp)
 
 # Chunk Data
 def chunk_data(df, interval=120):
@@ -72,3 +75,4 @@ def load_data(resolution, path):
     data_filepath = path + resolution + "/"
     data_dir = os.listdir(data_filepath)
     return [add_resolution(data_filepath + fp, resolution) for fp in data_dir]
+

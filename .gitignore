@@ -15,6 +15,7 @@ web-drivers/
 
 # dev notebooks
 vet-data.ipynb
+website_visuals.ipynb
 
 # Byte-compiled / optimized / DLL files
 .vscode/

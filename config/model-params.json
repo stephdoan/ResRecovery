@@ -1,3 +1,6 @@
 {
-  "model": "model/randomforest_chkpt2.obj"
+  "training_data": "training.csv",
+  "n_estimators": 10,
+  "max_depth": 10,
+  "min_samples_split": 3
 }

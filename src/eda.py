@@ -6,7 +6,7 @@ import seaborn as sns
 
 sys.path.insert(0, '../src')
 
-from utils import *
+from src.utils import *
 
 # convert to Mbps
 mbit_rate = 1 / 125000
