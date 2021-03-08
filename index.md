@@ -68,11 +68,13 @@ Below is a list and summary of all the features we used in our model. Our featur
 | prominence_std   | In the periodograms, high resolution data generates well defined peaks while lower resolution does not. In our max_prominence feature, we calculate the prominence values for all the peaks found in the data. We simply run take the standard deviation of this array to create this prominence_std feature.                                                                  |
 | rolling_cv       | Coefficient of variation taken over a rolling window version of the data                                                                                                                                                                                                                                                                                                       |
 
-# Model
+# Results
+
+## Model
 
 We found that a Random Forest classifier performed best. The model is able to give a low, medium, and high label when fed output data from [network-stats](https://github.com/viasat/network-stats). With very little hyperparameter tuning, our model is able to achieve an accuracy 87%. More importantly, there are very few misclassifications that span beyond neighboring labels (e.g. only 1 high resolution was misclassified as low). There is 2-class jump misclassification where a high resolution clip is predicted as low resolution. Observing the data, there are scenarios where sometimes a small subsection of a high resolution data could resemble low resolution or even no video streaming. For example, when Youtube plays an ad, the server stops sending data during the duration of the ad and the level of network activity is greatly decreased. The confusion matrix below provides more detail as to where misclassification can happen.
 
-### Confusion Matrix
+## Confusion Matrix
 
 **Bold** is our model's predictions while _italic_ is the actual class. We included both the normalized and raw value.
 
@@ -82,6 +84,14 @@ We found that a Random Forest classifier performed best. The model is able to gi
 | _Medium_ | 0.08 (3)  | 0.84 (33)  | 0.08 (3)  |
 | _High_   | 0.02 (10  | 0.08 (3)   | 0.90 (35) |
 
-### Feature Importance
+## Feature Importance
 
 ![Feature Importance](img/feature_importance.png)
+
+From our 9 features, we see that max prominence is very influential in the model, followed by the peak average and the prominence standard deviation. We suspect that the large gaps between resolutions in power result in max prominence becoming very imporatnt in the final model.
+
+# Discussion
+
+For the future, one approach to extend our work would be to focus on more discriminant features that will help in the classification of specific resolutions. We could also include a larger variety of resolutions in our model such as 1440p or higher. Other interesting topics would center around how much information we can learn through the data. For example, analyzing the differences in the network traffic data for popular and unpopular YouTube videos or distinguishing the content type of a video (such as action vs. still) are topics that could be of interest as well.
+
+Overall, we found it fascinating how much information we could gain about a user’s network activity even through a VPN. However, this also sparks the question of “how much information should we be able to know?” We must remember that VPNs are used to establish a sense of privacy and while these tools are created with the intention of ultimately fostering a better experience for the customer, it is important to keep ethical implications such as this in mind.
