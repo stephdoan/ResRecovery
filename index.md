@@ -2,11 +2,13 @@
 layout: default
 ---
 
-# Overview
+# Project Motivation
 
 Virtual private networks, or VPNs, have seen a growth in popularity as more of the general population has come to realize the importance of maintaining data privacy and security while browsing the Internet. VPNs route their users’ network traffic data through their own private servers, allowing them to provide these users with extra anonymity and protection by disguising the details of their network activity. However, even with the loss of detail such as packet destination, user activity in a VPN tunnel is still identifiable.
 
 Over the last ten weeks, we have built a classifier that is able to identify the resolution/quality of video while in a VPN tunnel. Our model is an extension of a previous binary classifer that was able to determine if a user was streaming video or not while in a VPN tunnel.
+
+We hope that this tool will prove useful to ISPs as it may help in the diagnosing process. For example, if customer were to experience slow service such as video stuttering, it could be a simple misunderstanding of what the customer's current service is capable of handling. Knowing the requirements for smooth video playback at different resolutions will also help temper expectations when customers select different levels of service.
 
 # The Data
 
@@ -68,13 +70,31 @@ Below is a list and summary of all the features we used in our model. Our featur
 | prominence_std   | In the periodograms, high resolution data generates well defined peaks while lower resolution does not. In our max_prominence feature, we calculate the prominence values for all the peaks found in the data. We simply run take the standard deviation of this array to create this prominence_std feature.                                                                  |
 | rolling_cv       | Coefficient of variation taken over a rolling window version of the data                                                                                                                                                                                                                                                                                                       |
 
-# Random Forest Model
+# Random Forest Models
 
-We found that a Random Forest classifier performed best. The model is able to give a low, medium, and high label when fed output data from [network-stats](https://github.com/viasat/network-stats). With very little hyperparameter tuning, our model is able to achieve an accuracy 87%. More importantly, there are very few misclassifications that span beyond neighboring labels (e.g. only 1 high resolution was misclassified as low). There is 2-class jump misclassification where a high resolution clip is predicted as low resolution. Observing the data, there are scenarios where sometimes a small subsection of a high resolution data could resemble low resolution or even no video streaming. For example, when Youtube plays an ad, the server stops sending data during the duration of the ad and the level of network activity is greatly decreased. The confusion matrix below provides more detail as to where misclassification can happen.
+We found that a Random Forest classifier performed best. The model is able to give a low, medium, and high label when fed output data from [network-stats](https://github.com/viasat/network-stats). Our efforts produced two classifers: a baseline and an extended model. The baseline was trained on a subset of the total training data - 240p, 480p, & 1080p. This was done to ensure that our features were good enough to atleast distinguish differences between resolutions spaced fairly far.
 
-## Confusion Matrix
+In both models, we trained on a 75/25 split on whatever subset of data we were using at the time.
 
-**Bold** is our model's predictions while _italic_ is the actual class. We included both the normalized and raw value.
+## Baseline Model
+
+The baseline model performed very well, achieving an accuracy of 91% as well as having no misclassifications greater than 1 class away. Below is a confusion matrix of our validation set. **Bold** is our model's predictions while _italics_ is the actual class. We included both the normalized and raw value.
+
+|         | **240p**  | **480p**  | **1080p** |
+| :------ | :-------- | :-------- | :-------- |
+| _240p_  | 1.00 (18) | 0 (0)     | 0 (0)     |
+| _480p_  | 0 (0)     | 0.85 (17) | 0.15 (3)  |
+| _1080p_ | 0.02 (10  | 0.11 (2)  | 0.89 (17) |
+
+A large percentage of our model can be explained with just max prominence, the seconds:peak, and the peak average. This suggests that these 3 resolutions are spaced out far enough in how many bytes they are sending that these 3 features are more than enough to explain the classification.
+
+![Feature Importance Baseline](img/feature_importance_baseline.png)
+
+## Final Model
+
+Since our baseline was able to achieve high accuracy, we proceeded to utilize the whole training set with all 6 resolutions. Remember that our classifier With very little hyperparameter tuning, our final model is able to achieve an accuracy 87%. More importantly, there are very few misclassifications that span beyond neighboring labels (e.g. only 1 high resolution was misclassified as low). There is 2-class jump misclassification where a high resolution clip is predicted as low resolution. Observing the data, there are scenarios where sometimes a small subsection of a high resolution data could resemble low resolution or even no video streaming. For example, when Youtube plays an ad, the server stops sending data during the duration of the ad and the level of network activity is greatly decreased. The confusion matrix below provides more detail as to where misclassification can happen.
+
+Below is a confusion matrix of our validation set. **Bold** is our model's predictions while _italic_ is the actual class. We included both the normalized and raw value.
 
 |          | **Low**   | **Medium** | **High**  |
 | :------- | :-------- | :--------- | :-------- |
@@ -82,11 +102,9 @@ We found that a Random Forest classifier performed best. The model is able to gi
 | _Medium_ | 0.08 (3)  | 0.84 (33)  | 0.08 (3)  |
 | _High_   | 0.02 (10  | 0.08 (3)   | 0.90 (35) |
 
-## Feature Importance
-
-![Feature Importance](img/feature_importance.png)
-
 From our 9 features, we see that max prominence is very influential in the model, followed by the peak average and the prominence standard deviation. We suspect that the large gaps between resolutions in power result in max prominence becoming very imporatnt in the final model.
+
+![Feature Importance Final](img/feature_importance_final.png)
 
 # Discussion
 
