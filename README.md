@@ -80,7 +80,7 @@ Allows users to input their own data to be classified by the model.
 
 ### `generate-data.json`
 
-Parameters used by the `generate_data.py` script.
+Parameters used by the `generate_data.py` script. Please refer to [Selenium](https://www.selenium.dev/documentation/en/) documentation to install the appropriate `webdriver.exe`. For best use, please configure the `PATH` variable in the `generate-data.py` file to the correct file path of the webdriver. This script was developed using Google Chrome.
 
 | Parameter          | Description                                                                                                     |
 | ------------------ | --------------------------------------------------------------------------------------------------------------- |
@@ -94,17 +94,19 @@ Parameters used by the `generate_data.py` script.
 
 ## Running the Project
 
+The project is current set to the assumption that users will collect their own training data. There is a repository of available training hosted on the DSMLP server located at `/teams/DSC180A_FA20_A00/b05vpnxray/personal_stdoan/data`. If not accessible, please refer to the [`generate_data.json`](#generate) configurations to automate collection of a training set.
+
 #### Running on the DSMLP Server
 
 The project was mean to be run on the UCSD DSMLP server. Below are instructions if user has access to DSMLP resources.
 
 1. Open up a terminal and run the command below to log onto the server. Users will need to provide appropriate identification when asked.
 
-`ssh [username]@dsmlp-login.ucsd.edu`
+> `ssh [username]@dsmlp-login.ucsd.edu`
 
 2. Launch a docker container to ensure package dependencies are fulfilled by running the command:
 
-`launch-180-gid.sh -G 100011652 -P Always stdoan/viasat-q1`
+> `launch-180-gid.sh -G 100011652 -P Always stdoan/viasat-q1`
 
 3. Clone this repository.
 
