@@ -6,7 +6,7 @@ layout: default
 
 Virtual private networks, or VPNs, have seen a growth in popularity as more of the general population has come to realize the importance of maintaining data privacy and security while browsing the Internet. VPNs route their users’ network traffic data through their own private servers, allowing them to provide these users with extra anonymity and protection by disguising the details of their network activity. However, even with the loss of detail such as packet destination, user activity in a VPN tunnel is still identifiable.
 
-Over the last ten weeks, we have built a classifier that is able to identify the resolution/quality of video while in a VPN tunnel. Our model is an extension of a previous binary classifer that was able to determine if a user was streaming video or not while in a VPN tunnel.
+Over the last ten weeks, we have built a classifier that is able to identify the resolution/quality of a YouTube video while in a VPN tunnel. Our model is an extension of a previous binary classifer that was able to determine if a user was streaming video or not while in a VPN tunnel.
 
 We hope that this tool will prove useful to ISPs as it may help in the diagnosing process. For example, if customer were to experience slow service such as video stuttering, it could be a simple misunderstanding of what the customer's current service is capable of handling. Knowing the requirements for smooth video playback at different resolutions will also help temper expectations when customers select different levels of service.
 
