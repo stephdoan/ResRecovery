@@ -2,11 +2,19 @@
 
 Website: https://stephdoan.github.io/ResRecovery/
 
+# Table of Contents
+
+1. [Abstract](#Abstract)
+2. [Config Files](#config)
+3. [Running the Project](#running)
+
 ## Abstract
 
 Virtual private networks, or VPNs, have seen a growth in popularity as more of the general population has come to realize the importance of maintaining data privacy and security while browsing the Internet. In previous works, our domain developed robust classifiers that could identify when a user was streaming video. As an extension, our group has developed a Random Forest model that determines the resolution at the time of video streaming. Our final model has an overall accuracy of **87%**.
 
-## Config Files
+<a name="config"></a>
+
+## Configuration Files
 
 ### `train-params.json`
 
@@ -70,14 +78,32 @@ Parameters used by the `generate_data.py` script.
 | outdir             | to be implemented                                                                                               |
 | resolutions        | list of resolutions to be collected                                                                             |
 
+<a name="running"></a>
+
 ## Running the Project
 
-The project was mean to be run on the UCSD DSMLP server.
+#### Running on the DSMLP Server
 
-- <code>python run.py test</code> will test the various targets to ensure that all methods are running properly.
+The project was mean to be run on the UCSD DSMLP server. Below are instructions if user has access to DSMLP resources.
 
-- <code>python run.py clean</code> will delete files created from running various targets. The folder and files are deleted from the local machine.
+1. Open up a terminal and run the command below to log onto the server. Users will need to provide appropriate identification when asked.
 
-- <code>python run.py features</code> will create features from data specified in <code>train-params.json</code>.
+`ssh [username]@dsmlp-login.ucsd.edu`
 
-- <code>python run.py predict</code> will either create training data to create a model or utilize a Pickle'd model that we have included. Output is an array of resolution label for each chunk in the data.
+2. Launch a docker container to ensure package dependencies are fulfilled by running the command:
+
+`launch-180-gid.sh -G 100011652 -P Always stdoan/viasat-q1`
+
+3. Clone this repository.
+
+4. Adjust config files as necessary and then run the targets!
+
+#### Targets
+
+- `python run.py test` will test the various targets to ensure that all methods are running properly.
+
+- `python run.py clean` will delete files created from running various targets. The folder and files are deleted from the local machine.
+
+- `python run.py features` will create features from data specified in `train-params.json`.
+
+- `python run.py predict` will either create training data to create a model or utilize a Pickle'd model that we have included. Output is an array of resolution label for each chunk in the data.
