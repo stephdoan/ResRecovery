@@ -31,14 +31,17 @@ Attempting to classify the exact numeric resolution proved to be difficult as fa
 ### Download Byte Stream
 
 For our purposes, we primarily focused on the downloaded bytes stream. We saw that as resolution increases so does the frequency and magnitude of data. However, the magnitude of data being downloaded increases first and then the frequency. We use this knowledge to create some thresholding features to help set preliminary boundaries between resolutions.
+![Download Byte Stream](img/download_byte_stream.png)
 
 ### Peaks
 
 A focus point of our model is looking at the large downloads being sent in a single second. Large is relative to the resolution but we found that using a hard threshold of 5 megabits produced subsets of data where many features could be extracted. Much like before, we take some basic aggregate statistics to describe the magnitude and spread of the peaks. But the most useful feature in our model from this peaks data is the time between peaks. Visually, we can see that there are much less peaks in the lower resolutions, relating back to the observed lower frequency in lower resolutions.
+![Peaks](img/peak_visual.png)
 
 ### Spectral Analysis
 
-Much of our spectral features came from trying to characterize the resultant periodograms after applying Welch's method. Although [network-stats](https://github.com/viasat/network-stats) allows analysis on a millisecond level, and in turn, allowing us to capture [higher frequency signals](https://en.wikipedia.org/wiki/Nyquist%E2%80%93Shannon_sampling_theorem). But, even at high resolutions, the most commonly observed frequency of the strongest signal lies between the .2Hz - .3Hz. As a result, we rebin our data to be samples spaced at 2 seconds.
+Much of our spectral features came from trying to characterize the resultant periodograms after applying Welch's method. [Network-stats](https://github.com/viasat/network-stats) allows analysis on a millisecond level, and in turn, allowing us to capture [higher frequency signals](https://en.wikipedia.org/wiki/Nyquist%E2%80%93Shannon_sampling_theorem). But, even at high resolutions, the most commonly observed frequency of the strongest signal lies between the .2Hz - .3Hz. As a result, we rebin our data to be samples spaced at 2 seconds.
+![Peaks](img/periodograms.png)
 
 # Features
 
