@@ -5,8 +5,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 sys.path.insert(0, '../src')
-
-from src.utils import *
+from utils import *
 
 # convert to Mbps
 mbit_rate = 1 / 125000
