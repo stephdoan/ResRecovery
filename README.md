@@ -14,7 +14,7 @@ Website: https://stephdoan.github.io/ResRecovery/
 
 ## Abstract
 
-Virtual private networks, or VPNs, have seen a growth in popularity as more of the general population has come to realize the importance of maintaining data privacy and security while browsing the Internet. In previous works, our domain developed robust classifiers that could identify when a user was streaming video. As an extension, our group has developed a Random Forest model that determines the resolution at the time of video streaming. Our final model has an overall accuracy of **87%**.
+Virtual private networks, or VPNs, have seen a growth in popularity as more of the general population has come to realize the importance of maintaining data privacy and security while browsing the Internet. In previous works, our domain developed robust classifiers that could identify when a user was streaming video. As an extension, our group has developed a Random Forest model that determines the resolution at the time of video streaming. Our final model has an overall accuracy of **87%**. 
 
 <a name="config"></a>
 
